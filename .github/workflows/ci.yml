@@ -1,0 +1,51 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - erlang: "25.2"
+            elixir: main
+          - erlang: "25.2"
+            elixir: "1.14.3"
+            lint: true
+          - erlang: "20.3"
+            elixir: "1.4.5"
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install OTP and Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{ matrix.erlang }}
+          elixir-version: ${{ matrix.elixir }}
+
+      - name: Cache dependencies
+        id: cache-deps
+        uses: actions/cache@v3
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-otp${{ matrix.erlang }}-elixir${{ matrix.elixir }}-${{ hashFiles('**/mix.lock') }}
+
+      - name: Check for unused dependencies
+        run: mix do deps.get, deps.unlock --check-unused
+        if: ${{ matrix.lint && steps.cache-deps.outputs.cache-hit != 'true'}}
+
+      - name: Compile with --warnings-as-errors
+        run: mix compile --warnings-as-errors
+        if: ${{ matrix.lint }}
+
+      - name: Check mix format
+        run: mix format --check-formatted
+        if: ${{ matrix.lint }}
+
+      - name: Run tests
+        run: mix test
