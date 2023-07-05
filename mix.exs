@@ -1,7 +1,7 @@
 defmodule AwsRdsCAStore.MixProject do
   use Mix.Project
 
-  @version "1.0.0"
+  @version "1.1.0"
   @repo_url "https://github.com/voltone/aws_rds_castore"
 
   def project do
@@ -43,7 +43,14 @@ defmodule AwsRdsCAStore.MixProject do
 
   defp package do
     [
-      files: ["lib/aws_rds_castore.ex", "priv", "mix.exs", "README.md"],
+      files: [
+        "lib/aws_rds_castore.ex",
+        "priv",
+        "src",
+        "mix.exs",
+        "rebar.config",
+        "README.md"
+      ],
       licenses: ["Apache-2.0"],
       links: %{"GitHub" => @repo_url}
     ]

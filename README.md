@@ -13,19 +13,35 @@ Based on and derived from https://hex.pm/packages/castore
 
 ## Installation
 
+### Elixir (Mix)
+
 In your `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:aws_rds_castore, "~> 1.0"}
+    {:aws_rds_castore, "~> 1.1"}
   ]
 end
 ```
 
 Then, run `$ mix deps.get`.
 
+### Erlang (Rebar3)
+
+In your `rebar.config`:
+
+```erlang
+{deps, [
+  {aws_rds_castore, "~> 1.1"}
+]}.
+```
+
+Then, run `$ rebar3 get-deps`.
+
 ## Usage
+
+### Elixir (with Ecto)
 
 ```elixir
 # In runtime.exs:
@@ -39,9 +55,21 @@ config :my_app, MyApp.Repo,
 
 See [the documentation](https://hexdocs.pm/aws_rds_castore).
 
+### Erlang (with PGo)
+
+```erlang
+PoolConfig = #{pool_size => 10,
+               host => Host,
+               database => "test",
+               user => "test",
+               ssl => true,
+               ssl_options => aws_rds_castore:ssl_opts(Host)},
+pgo:start_pool(default, PoolConfig).
+```
+
 ## Updates
 
-Every time there is an update to the AWS RDS CA certificate store, we'll release a new **patch version** of the library. For example, `1.0.12` → `1.0.13`.
+Every time there is an update to the AWS RDS CA certificate store, we'll release a new **patch version** of the library. For example, `1.1.12` → `1.1.13`.
 
 ## Contributing
 
