@@ -1,0 +1,15 @@
+{application, aws_rds_castore,
+ [{description, "AWS RDS CA certificate store"},
+  {vsn, "1.1.0"},
+  {registered, []},
+  {applications,
+   [kernel,
+    stdlib
+   ]},
+  {env,[]},
+  {modules, []},
+
+  {maintainers, []},
+  {licenses, ["Apache-2.0"]},
+  {links, []}
+ ]}.
