@@ -15,10 +15,17 @@ ssl_opts(UrlOrHostname) when is_binary(UrlOrHostname) ->
     ssl_opts(binary_to_list(UrlOrHostname));
 
 ssl_opts(UrlOrHostname) ->
+    % Accepts a database URI if uri_string module is available, so from OTP 21
     ServerName =
-        case uri_string:parse(UrlOrHostname) of
-            #{host := Hostname} ->
-                Hostname;
+        case code:ensure_loaded(uri_string) of
+            {module,uri_string} ->
+                case uri_string:parse(UrlOrHostname) of
+                    #{host := Hostname} ->
+                        Hostname;
+                    _ ->
+                        UrlOrHostname
+                end;
+
             _ ->
                 UrlOrHostname
         end,

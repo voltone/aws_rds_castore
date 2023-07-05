@@ -14,13 +14,6 @@ defmodule AwsRdsCAStoreTest do
       assert 'some.host.name' = ssl_opts[:server_name_indication]
     end
 
-    test "with url" do
-      ssl_opts = AwsRdsCAStore.ssl_opts("postgres://postgres:postgres@some.host.name/my_app_db")
-      assert :verify_peer = ssl_opts[:verify]
-      assert String.ends_with?(ssl_opts[:cacertfile], "/priv/global-bundle.pem")
-      assert 'some.host.name' = ssl_opts[:server_name_indication]
-    end
-
     test "with hostname (charlist)" do
       ssl_opts = AwsRdsCAStore.ssl_opts('some.host.name')
       assert :verify_peer = ssl_opts[:verify]
@@ -28,11 +21,20 @@ defmodule AwsRdsCAStoreTest do
       assert 'some.host.name' = ssl_opts[:server_name_indication]
     end
 
-    test "with url (charlist)" do
-      ssl_opts = AwsRdsCAStore.ssl_opts('postgres://postgres:postgres@some.host.name/my_app_db')
-      assert :verify_peer = ssl_opts[:verify]
-      assert String.ends_with?(ssl_opts[:cacertfile], "/priv/global-bundle.pem")
-      assert 'some.host.name' = ssl_opts[:server_name_indication]
+    if :erlang.system_info(:otp_release) |> List.to_integer() >= 21 do
+      test "with url" do
+        ssl_opts = AwsRdsCAStore.ssl_opts("postgres://postgres:postgres@some.host.name/my_app_db")
+        assert :verify_peer = ssl_opts[:verify]
+        assert String.ends_with?(ssl_opts[:cacertfile], "/priv/global-bundle.pem")
+        assert 'some.host.name' = ssl_opts[:server_name_indication]
+      end
+
+      test "with url (charlist)" do
+        ssl_opts = AwsRdsCAStore.ssl_opts('postgres://postgres:postgres@some.host.name/my_app_db')
+        assert :verify_peer = ssl_opts[:verify]
+        assert String.ends_with?(ssl_opts[:cacertfile], "/priv/global-bundle.pem")
+        assert 'some.host.name' = ssl_opts[:server_name_indication]
+      end
     end
   end
 end

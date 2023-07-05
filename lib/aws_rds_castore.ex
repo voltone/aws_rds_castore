@@ -21,6 +21,8 @@ defmodule AwsRdsCAStore do
   @doc """
   Returns a set of `:ssl` transport options for certificate verification.
 
+  Accepts a database URI instead of hostname on OTP 21 or later.
+
   ## Examples
 
       # In runtime.exs:
