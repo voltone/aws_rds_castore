@@ -7,7 +7,7 @@
 [![Hex.pm](https://img.shields.io/hexpm/l/aws_rds_castore.svg)](https://hex.pm/packages/aws_rds_castore)
 [![Github.com](https://img.shields.io/github/last-commit/voltone/aws_rds_castore.svg)](https://github.com/voltone/aws_rds_castore/commits/master)
 
-AWS RDS CA certificate store for Elixir. See https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL.html
+AWS RDS CA certificate store for Elixir and Erlang. See https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL.html
 
 Based on and derived from https://hex.pm/packages/castore
 
