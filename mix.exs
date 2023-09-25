@@ -28,12 +28,9 @@ defmodule AwsRdsCAStore.MixProject do
 
   def application do
     [
-      extra_applications: extra_applications(Mix.env())
+      extra_applications: [:logger, :public_key]
     ]
   end
-
-  defp extra_applications(:prod), do: [:logger]
-  defp extra_applications(_env), do: [:public_key] ++ extra_applications(:prod)
 
   defp deps do
     [
