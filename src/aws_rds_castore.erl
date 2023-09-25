@@ -34,5 +34,8 @@ ssl_opts(UrlOrHostname) ->
       {verify, verify_peer},
       {cacertfile, file_path()},
       {depth, 10},
-      {server_name_indication, ServerName}
+      {server_name_indication, ServerName},
+      {customize_hostname_check, [
+        {match_fun, public_key:pkix_verify_hostname_match_fun(https)}
+      ]}
     ].
