@@ -39,9 +39,12 @@ ssl_opts(UrlOrHostname) ->
         {match_fun, public_key:pkix_verify_hostname_match_fun(https)}
       ]},
       {verify_fun, {fun
-        (_,{bad_cert, _} = Reason, _) ->
+        (Cert, {bad_cert, hostname_check_failed} = Reason, _) ->
+          logger:info("DB server cert: ~p", [Cert]),
           {fail, Reason};
-        (_,{extension, _}, UserState) ->
+        (_, {bad_cert, _} = Reason, _) ->
+          {fail, Reason};
+        (_, {extension, _}, UserState) ->
           {unknown, UserState};
         (_, valid, UserState) ->
           {valid, UserState};
