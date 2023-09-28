@@ -21,7 +21,7 @@ defmodule AwsRdsCAStore do
   @doc """
   Returns a set of `:ssl` transport options for certificate verification.
 
-  Accepts a database URI instead of hostname on OTP 21 or later.
+  Accepts an Ecto database URI or a hostname.
 
   ## Examples
 
@@ -34,7 +34,20 @@ defmodule AwsRdsCAStore do
         socket_options: maybe_ipv6
 
   """
+  def ssl_opts(url_or_hostname) when is_list(url_or_hostname) do
+    ssl_opts(List.to_string(url_or_hostname))
+  end
+
   def ssl_opts(url_or_hostname) do
-    :aws_rds_castore.ssl_opts(url_or_hostname)
+    hostname =
+      case URI.parse(url_or_hostname) do
+        %URI{scheme: nil} ->
+          url_or_hostname
+
+        %URI{host: host} ->
+          host
+      end
+
+    :aws_rds_castore.ssl_opts(hostname)
   end
 end

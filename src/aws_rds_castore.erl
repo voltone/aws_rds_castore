@@ -11,28 +11,13 @@ file_path() ->
     list_to_binary(filename:join(PrivDir, "global-bundle.pem")).
 
 %% Returns a set of `:ssl` transport options for certificate verification.
-ssl_opts(UrlOrHostname) when is_binary(UrlOrHostname) ->
-    ssl_opts(binary_to_list(UrlOrHostname));
+ssl_opts(Hostname) when is_binary(Hostname) ->
+    ssl_opts(binary_to_list(Hostname));
 
-ssl_opts(UrlOrHostname) ->
-    % Accepts a database URI if uri_string module is available, so from OTP 21
-    ServerName =
-        case code:ensure_loaded(uri_string) of
-            {module,uri_string} ->
-                case uri_string:parse(UrlOrHostname) of
-                    #{host := Hostname} ->
-                        Hostname;
-                    _ ->
-                        UrlOrHostname
-                end;
-
-            _ ->
-                UrlOrHostname
-        end,
-
+ssl_opts(Hostname) ->
     [
       {verify, verify_peer},
       {cacertfile, file_path()},
       {depth, 10},
-      {server_name_indication, ServerName}
+      {server_name_indication, Hostname}
     ].
