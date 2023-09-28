@@ -36,7 +36,9 @@ defmodule AwsRdsCAStoreTest do
     end
 
     test "with url with special characters" do
-      ssl_opts = AwsRdsCAStore.ssl_opts("postgres://postgres:secret[]123!{}@some.host.name/my_app_db")
+      ssl_opts =
+        AwsRdsCAStore.ssl_opts("postgres://postgres:secret[]123!{}@some.host.name/my_app_db")
+
       assert :verify_peer = ssl_opts[:verify]
       assert String.ends_with?(ssl_opts[:cacertfile], "/priv/global-bundle.pem")
       assert 'some.host.name' = ssl_opts[:server_name_indication]
