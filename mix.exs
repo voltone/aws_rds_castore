@@ -1,7 +1,7 @@
 defmodule AwsRdsCAStore.MixProject do
   use Mix.Project
 
-  @version "1.2.0"
+  @version "1.2.1-dev"
   @repo_url "https://github.com/voltone/aws_rds_castore"
 
   def project do
@@ -44,7 +44,7 @@ defmodule AwsRdsCAStore.MixProject do
   defp package do
     [
       files: [
-        "lib/aws_rds_castore.ex",
+        "lib",
         "priv",
         "src",
         "mix.exs",
