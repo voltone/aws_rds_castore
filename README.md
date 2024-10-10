@@ -47,8 +47,7 @@ Then, run `$ rebar3 get-deps`.
 # In runtime.exs:
 config :my_app, MyApp.Repo,
   url: database_url,
-  ssl: true,
-  ssl_opts: AwsRdsCAStore.ssl_opts(database_url),
+  ssl: AwsRdsCAStore.ssl_opts(database_url),
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
   socket_options: maybe_ipv6
 ```

@@ -28,8 +28,10 @@ defmodule AwsRdsCAStore do
       # In runtime.exs:
       config :my_app, MyApp.Repo,
         url: database_url,
-        ssl: true,
-        ssl_opts: AwsRdsCAStore.ssl_opts(database_url),
+        ssl: AwsRdsCAStore.ssl_opts(database_url),
+        ### With older Postgrex versions:
+        # ssl: true,
+        # ssl_opts: AwsRdsCAStore.ssl_opts(database_url),
         pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
         socket_options: maybe_ipv6
 
