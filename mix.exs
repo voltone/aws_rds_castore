@@ -32,8 +32,7 @@ defmodule AwsRdsCAStore.MixProject do
     ]
   end
 
-  defp extra_applications(:prod), do: [:logger]
-  defp extra_applications(_env), do: [:public_key] ++ extra_applications(:prod)
+  defp extra_applications(_env), do: [:public_key]
 
   defp deps do
     [
