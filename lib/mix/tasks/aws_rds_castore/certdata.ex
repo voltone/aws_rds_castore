@@ -44,36 +44,70 @@ defmodule Mix.Tasks.AwsRdsCaStore.Certdata do
   @shortdoc "Fetches an up-to-date version of the AWS RDS CA certificate store"
 
   @aws_rds_global_bundle "https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem"
+  @aws_rds_govcloud_global_bundle "https://truststore.pki.us-gov-west-1.rds.amazonaws.com/global/global-bundle.pem"
   @ca_bundle "global-bundle.pem"
   @ca_bundle_target "priv/global-bundle.pem"
+  @govcloud_bundle_target "priv/govcloud-bundle.pem"
 
   @impl true
   def run(args)
 
   def run([]) do
-    bundle =
-      fetch_ca_bundle()
-      |> parse_bundle()
-      |> filter_expired()
-      |> filter_intermediates()
-      |> rebuild_bundle()
+    bundles = [
+      {@aws_rds_global_bundle, @ca_bundle, @ca_bundle_target},
+      {@aws_rds_govcloud_global_bundle, "govcloud-bundle.pem", @govcloud_bundle_target}
+    ]
 
-    File.write!(@ca_bundle_target, bundle)
+    for {url, temp_filename, target_path} <- bundles do
+      bundle =
+        fetch_ca_bundle(url, temp_filename)
+        |> parse_bundle()
+        |> filter_expired()
+        |> filter_intermediates()
+        |> rebuild_bundle()
+
+      File.write!(target_path, bundle)
+    end
+
+    Mix.shell().info([
+      :green,
+      "Successfully downloaded and processed both global and GovCloud certificate bundles"
+    ])
   end
 
   def run(["--check-outdated"]) do
-    new_bundle =
-      fetch_ca_bundle()
-      |> parse_bundle()
-      |> filter_expired()
-      |> filter_intermediates()
+    bundles = [
+      {@aws_rds_global_bundle, @ca_bundle, AwsRdsCAStore.file_path(), "global-bundle.pem"},
+      {@aws_rds_govcloud_global_bundle, "govcloud-bundle.pem", @govcloud_bundle_target,
+       "govcloud-bundle.pem"}
+    ]
 
-    old_bundle = read_certificates_set(parse_bundle(File.read!(AwsRdsCAStore.file_path())))
-    new_bundle = read_certificates_set(new_bundle)
+    outdated_files =
+      for {url, temp_filename, target_path, bundle_name} <- bundles do
+        new_bundle =
+          fetch_ca_bundle(url, temp_filename)
+          |> parse_bundle()
+          |> filter_expired()
+          |> filter_intermediates()
 
-    if not MapSet.equal?(old_bundle, new_bundle) do
+        old_bundle =
+          if File.exists?(target_path) do
+            read_certificates_set(parse_bundle(File.read!(target_path)))
+          else
+            MapSet.new()
+          end
+
+        new_bundle = read_certificates_set(new_bundle)
+
+        if not MapSet.equal?(old_bundle, new_bundle) do
+          bundle_name
+        end
+      end
+      |> Enum.reject(&is_nil/1)
+
+    if not Enum.empty?(outdated_files) do
       Mix.raise(
-        "#{AwsRdsCAStore.file_path()} is outdated. Run \"mix aws_rds_ca_store.certdata\" to update it."
+        "Certificate bundles are outdated: #{Enum.join(outdated_files, ", ")}. Run \"mix aws_rds_ca_store.certdata\" to update them."
       )
     end
   end
@@ -82,18 +116,18 @@ defmodule Mix.Tasks.AwsRdsCaStore.Certdata do
     Mix.raise("Invalid arguments. See `mix help aws_rds_ca_store.certdata`.")
   end
 
-  defp fetch_ca_bundle do
-    fetch!(@aws_rds_global_bundle)
-    bundle = File.read!(@ca_bundle)
-    File.rm!(@ca_bundle)
+  defp fetch_ca_bundle(url, filename) do
+    fetch!(url, filename)
+    bundle = File.read!(filename)
+    File.rm!(filename)
     bundle
   end
 
-  defp fetch!(url) do
+  defp fetch!(url, filename) do
     if System.find_executable("curl") do
-      cmd!("curl -LO #{url}")
+      cmd!("curl -L -o #{filename} #{url}")
     else
-      cmd!("wget #{url}")
+      cmd!("wget -O #{filename} #{url}")
     end
   end
 
